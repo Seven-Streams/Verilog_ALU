@@ -90,6 +90,7 @@ endmodule
 module Add(
         input       [31:0]          a,
         input       [31:0]          b,
+        output  carry_out,
         output reg  [31:0]          sum
     );
     wire [31:0] res_sum;
@@ -104,7 +105,8 @@ module Add(
                  .a(a[31:16]),
                  .b(b[31:16]),
                  .carry_in(first_output),
-                 .sum(res_sum[31:16])
+                 .sum(res_sum[31:16]),
+                 .carry_out(carry_out)
              );
     integer i;
     always @(*) begin
