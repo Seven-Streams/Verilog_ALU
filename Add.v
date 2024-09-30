@@ -17,7 +17,7 @@ module BitAdd4(
     reg [3:0] g;
     reg [3:0] p;
     integer i;
-    always @* begin
+    always @(*) begin
         for(i = 0; i < 4; i++) begin
             g[i] = a[i] & b[i];
             p[i] = a[i] ^ b[i];
@@ -45,8 +45,8 @@ module BitAdd16(
     reg [2:0] carry;
     wire [3:0] p;
     wire [3:0] g;
-    always @* begin
-        carry[0] = g[0] + (p[0] & carry[0]);
+    always @(*) begin
+        carry[0] = g[0] + (p[0] & carry_in);
         carry[1] = g[1] + (p[1] & g[0]) + (p[1] & p[0] & carry_in);
         carry[2] = g[2] + (p[2] & g[1]) + (p[2] & p[1] & g[0]) + (p[2] & p[1] & p[0] & carry_in);
     end
@@ -107,7 +107,7 @@ module Add(
                  .sum(res_sum[31:16])
              );
     integer i;
-    always @* begin
+    always @(*) begin
         for(i = 0; i < 32; i++) begin
             sum[i] = res_sum[i];
         end
