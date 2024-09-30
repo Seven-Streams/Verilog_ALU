@@ -19,14 +19,14 @@ module BitAdd4(
     integer i;
     always @* begin
         for(i = 0; i < 4; i++) begin
-            g[i] = a[i] | b[i];
+            g[i] = a[i] & b[i];
             p[i] = a[i] ^ b[i];
         end
         carry[1] = g[0] + (p[0] & carry_in);
         carry[2] = g[1] + (p[1] & g[0]) + (p[1] & p[0] & carry_in);
         carry[3] = g[2] + (p[2] & g[1]) + (p[2] & p[1] & g[0]) + (p[2] & p[1] & p[0] & carry_in);
         sum[0] = a[0] + b[0] + carry_in;
-        for(i = 1; i < 3; i++) begin
+        for(i = 1; i < 4; i++) begin
             sum[i] = a[i] + b[i] + carry[i];
         end
     end
