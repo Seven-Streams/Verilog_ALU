@@ -5,21 +5,21 @@ module Mul(
         input [31:0] b,
         output reg [63:0] product
     );
-    wire [31:0] double_a;
-    wire carry[16:0];
-    wire first_bit;
-    assign double_a = a << 1;
-    assign first_bit = a >> 31;
-    wire [31:0] first_output [15:0];
-    wire [31:0] sum[31:0];
+    wire [31:0] half_a;
+    wire lowest_bit;
+    wire [31:0] first_output [31:0];
+    assign half_a = a >> 1;
+    assign lowest_bit = a & 1;
+    assign first_output[31] = (b[31] == 0) ? 0 : (a  & 32'h7FFFFFFF);
+    assign first_output[0] = (b[0] == 0) ? 0 : (a ^ 1);
     genvar i;
-    for(i = 0; i < 16; i = i + 1) begin
-        Add add(.a(b[i << 1] == 0 ? a : 0),
-                .b(b[(i << 1) + 1] == 0 ? double_a : 0),
-                .carry_out(carry[i]),
-                .sum(sum[i]));
-    end
-    // This part is to do 16 times addition, and record the necessary carry_out.
     generate
+        for(i = 1; i < 31; i = i + 1) begin
+            assign first_output[i] = (b[i] == 0) ? 0 : a;
+        end
     endgenerate
+    always @(*) begin
+        product[63] = (a >> 31) & (b >> 31);
+        product[0] = (a & b & 1);
+    end
 endmodule
