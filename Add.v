@@ -40,7 +40,9 @@ module BitAdd16(
         input [15:0] b,
         input carry_in,
         output [15:0] sum,
-        output carry_out
+        output carry_out,
+        output G,
+        output P
     );
     reg [2:0] carry;
     wire [3:0] p;
@@ -85,6 +87,8 @@ module BitAdd16(
                 .P(p[3]),
                 .G(g[3])
             );
+    assign G = g[3] + (p[3] & g[2]) + (p[3] & p[2] & g[1]) + (p[3] & p[2] & p[1] & g[0]);
+    assign P = p[0] & p[1] & p[2] & p[3];
     assign carry_out = g[3] + (p[3] & g[2]) + (p[3] & p[2] & g[1]) + (p[3] & p[2] & p[1] & g[0]) + (p[3] & p[2] & p[1] & p[0] & carry_in);
 endmodule
 module Add(
