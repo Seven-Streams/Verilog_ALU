@@ -40,7 +40,6 @@ module add_float(
     wire [31:0] tail_sum;
     reg [31:0] tail_output;
     reg [31:0] exp_output;
-    wire [31:0] bigger_exp;
     reg [31:0] minus_input;
     wire [31:0] minus_output;
     Add adder_minus(
@@ -52,11 +51,6 @@ module add_float(
             .a(smaller),
             .b(1),
             .sum(small_comp)
-        );
-    Add adder_exp(
-            .a(exp_output),
-            .b(1),
-            .sum(bigger_exp)
         );
     Add adder_exp_diff(
             .a(small_num),
@@ -90,7 +84,7 @@ module add_float(
                             tail_output = tail_sum;
                             if(tail_sum[9] != 0) begin
                                 tail_output = tail_sum >> 1;
-                                exp_output = bigger_exp;
+                                exp_output++;
                             end
                             sum[31] = signal[0];
                             sum[30:23] = tail_output[7:0];
@@ -112,13 +106,25 @@ module add_float(
                             tail_output = tail_sum;
                             if(tail_sum[9] != 0) begin
                                 tail_output = tail_sum >> 1;
-                                exp_output = bigger_exp;
+                                exp_output++;
                             end
                             sum[31] = signal[0];
                             sum[30:23] = tail_output[7:0];
                             sum[22:0] = exp_output[22:0];
                         end
                     end
+                end      else begin
+                    res_tail[0] = tail[0];
+                    res_tail[1] = tail[1];
+                    exp_output = exp[1];
+                    tail_output = tail_sum;
+                    if(tail_sum[9] != 0) begin
+                        tail_output = tail_sum >> 1;
+                        exp_output++;
+                    end
+                    sum[31] = signal[0];
+                    sum[30:23] = tail_output[7:0];
+                    sum[22:0] = exp_output[22:0];
                 end
             end
             else begin
@@ -138,7 +144,7 @@ module add_float(
                             exp_output = exp[0];
                             if(tail_sum[9] != 0) begin
                                 tail_output = tail_sum >> 1;
-                                exp_output = bigger_exp;
+                                exp_output++;
                             end
                             sum[31] = signal[0];
                             sum[30:23] = tail_output[7:0];
@@ -160,7 +166,7 @@ module add_float(
                             exp_output = exp[1];
                             if(tail_sum[9] != 0) begin
                                 tail_output = tail_sum >> 1;
-                                exp_output = bigger_exp;
+                                exp_output++;
                             end
                             sum[31] = signal[1];
                             sum[30:23] = tail_output[7:0];
@@ -181,7 +187,7 @@ module add_float(
                             exp_output = exp[0];
                             while(tail_output[8] != 0) begin
                                 tail_output = tail_output << 1;
-                                exp_output = bigger_exp;
+                                exp_output++;
                             end
                             sum[31] = signal[0];
                             sum[30:23] = tail_output[7:0];
@@ -195,9 +201,9 @@ module add_float(
                             exp_output = exp[0];
                             while(tail_output[8] != 0) begin
                                 tail_output = tail_output << 1;
-                                exp_output = bigger_exp;
+                                exp_output++;
                             end
-                            sum[31] = signal[0];
+                            sum[31] = signal[1];
                             sum[30:23] = tail_output[7:0];
                             sum[22:0] = exp_output[22:0];
                         end
