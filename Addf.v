@@ -131,7 +131,18 @@ module add_float(
                             sum = a;
                         end
                         else begin
-                            //TODO:
+                            res_tail[0] = tail[0];
+                            minus_input = ~tail[1];
+                            res_tail[1] = minus_output;
+                            tail_output = tail_sum;
+                            exp_output = exp[0];
+                            if(tail_sum[9] != 0) begin
+                                tail_output = tail_sum >> 1;
+                                exp_output = bigger_exp;
+                            end
+                            sum[31] = signal[0];
+                            sum[30:23] = tail_output[7:0];
+                            sum[22:0] = exp_output[22:0];
                         end
                     end
                     else begin
@@ -142,7 +153,18 @@ module add_float(
                             sum = b;
                         end
                         else begin
-                            //TODO:
+                            res_tail[1] = tail[1];
+                            minus_input = ~tail[0];
+                            res_tail[0] = minus_output;
+                            tail_output = tail_sum;
+                            exp_output = exp[1];
+                            if(tail_sum[9] != 0) begin
+                                tail_output = tail_sum >> 1;
+                                exp_output = bigger_exp;
+                            end
+                            sum[31] = signal[1];
+                            sum[30:23] = tail_output[7:0];
+                            sum[22:0] = exp_output[22:0];
                         end
                     end
                 end
