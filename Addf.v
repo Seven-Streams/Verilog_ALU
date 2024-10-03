@@ -39,77 +39,149 @@ module add_float(
     reg [31:0] small_num;
     wire [31:0] tail_sum;
     reg [31:0] tail_output;
-    reg [31:0] exp_output; 
+    reg [31:0] exp_output;
     wire [31:0] bigger_exp;
+    reg [31:0] minus_input;
+    wire [31:0] minus_output;
+    Add adder_minus(
+            .a(minus_input),
+            .b(1),
+            .sum(minus_output)
+        );
     Add adder_comp(
-        .a(smaller),
-        .b(1),
-        .sum(small_comp)
-    );
+            .a(smaller),
+            .b(1),
+            .sum(small_comp)
+        );
     Add adder_exp(
-        .a(exp_output),
-        .b(1),
-        .sum(bigger_exp)
-    );
+            .a(exp_output),
+            .b(1),
+            .sum(bigger_exp)
+        );
     Add adder_exp_diff(
-        .a(small_num),
-        .b(big_num),
-        .sum(exp_diff)
-    );
+            .a(small_num),
+            .b(big_num),
+            .sum(exp_diff)
+        );
     Add adder_tail(
-        .a(res_tail[0]),
-        .b(res_tail[1]),
-        .sum(tail_sum)
-    );
+            .a(res_tail[0]),
+            .b(res_tail[1]),
+            .sum(tail_sum)
+        );
     always @(*) begin
-        if(signal[0] == signal[1]) begin
-            if(exp[0] != exp[1]) begin
-                if(exp[0] > exp[1]) begin
-                    assign big_num = exp[0];
-                    smaller = ~exp[1];
-                    small_num = small_comp;
-                    if(exp_diff >= 8) begin
-                        sum = a;
-                    end else begin
-                        res_tail[0] = tail[0];
-                        res_tail[1] = tail[1];
-                        res_tail[1] = res_tail[1] >> exp_diff;
-                        exp_output = exp[0];
-                        tail_output = tail_sum;
-                        if(tail_sum[9] != 0) begin
-                            tail_output = tail_sum >> 1;
-                            exp_output = bigger_exp;
+        if(a == 0 || b == 0) begin
+            sum = (a == 0) ? b : a;
+        end
+        else begin
+            if(signal[0] == signal[1]) begin
+                if(exp[0] != exp[1]) begin
+                    if(exp[0] > exp[1]) begin
+                        assign big_num = exp[0];
+                        smaller = ~exp[1];
+                        small_num = small_comp;
+                        if(exp_diff >= 8) begin
+                            sum = a;
                         end
-                        sum[31] = signal[0];
-                        sum[30:23] = tail_output[7:0];
-                        sum[22:0] = exp_output[22:0];
+                        else begin
+                            res_tail[0] = tail[0];
+                            res_tail[1] = tail[1];
+                            res_tail[1] = res_tail[1] >> exp_diff;
+                            exp_output = exp[0];
+                            tail_output = tail_sum;
+                            if(tail_sum[9] != 0) begin
+                                tail_output = tail_sum >> 1;
+                                exp_output = bigger_exp;
+                            end
+                            sum[31] = signal[0];
+                            sum[30:23] = tail_output[7:0];
+                            sum[22:0] = exp_output[22:0];
+                        end
                     end
-                end
-                else begin
-                    assign big_num = exp[1];
-                    smaller = ~exp[0];
-                    small_num = small_comp;
-                    if(exp_diff >= 8) begin
-                        sum = b;
-                    end else begin
-                        res_tail[0] = tail[0];
-                        res_tail[1] = tail[1];
-                        res_tail[0] = res_tail[0] >> exp_diff;
-                        exp_output = exp[1];
-                        tail_output = tail_sum;
-                        if(tail_sum[9] != 0) begin
-                            tail_output = tail_sum >> 1;
-                            exp_output = bigger_exp;
+                    else begin
+                        assign big_num = exp[1];
+                        smaller = ~exp[0];
+                        small_num = small_comp;
+                        if(exp_diff >= 8) begin
+                            sum = b;
                         end
-                        sum[31] = signal[0];
-                        sum[30:23] = tail_output[7:0];
-                        sum[22:0] = exp_output[22:0];
+                        else begin
+                            res_tail[0] = tail[0];
+                            res_tail[1] = tail[1];
+                            res_tail[0] = res_tail[0] >> exp_diff;
+                            exp_output = exp[1];
+                            tail_output = tail_sum;
+                            if(tail_sum[9] != 0) begin
+                                tail_output = tail_sum >> 1;
+                                exp_output = bigger_exp;
+                            end
+                            sum[31] = signal[0];
+                            sum[30:23] = tail_output[7:0];
+                            sum[22:0] = exp_output[22:0];
+                        end
                     end
                 end
             end
-        end
-        else begin
-
+            else begin
+                if(exp[0] != exp[1]) begin
+                    if(exp[0] > exp[1]) begin
+                        assign big_num = exp[0];
+                        smaller = ~exp[1];
+                        small_num = small_comp;
+                        if(exp_diff >= 8) begin
+                            sum = a;
+                        end
+                        else begin
+                            //TODO:
+                        end
+                    end
+                    else begin
+                        assign big_num = exp[1];
+                        smaller = ~exp[0];
+                        small_num = small_comp;
+                        if(exp_diff >= 8) begin
+                            sum = b;
+                        end
+                        else begin
+                            //TODO:
+                        end
+                    end
+                end
+                else begin
+                    if(tail[0] == tail[1]) begin
+                        sum = 0;
+                    end
+                    else begin
+                        if(tail[0] > tail[1]) begin
+                            minus_input = ~tail[1];
+                            res_tail[0] = tail[0];
+                            res_tail[1] = minus_input;
+                            tail_output = tail_sum;
+                            exp_output = exp[0];
+                            while(tail_output[8] != 0) begin
+                                tail_output = tail_output << 1;
+                                exp_output = bigger_exp;
+                            end
+                            sum[31] = signal[0];
+                            sum[30:23] = tail_output[7:0];
+                            sum[22:0] = exp_output[22:0];
+                        end
+                        else begin
+                            minus_input = ~tail[0];
+                            res_tail[0] = tail[1];
+                            res_tail[1] = minus_input;
+                            tail_output = tail_sum;
+                            exp_output = exp[0];
+                            while(tail_output[8] != 0) begin
+                                tail_output = tail_output << 1;
+                                exp_output = bigger_exp;
+                            end
+                            sum[31] = signal[0];
+                            sum[30:23] = tail_output[7:0];
+                            sum[22:0] = exp_output[22:0];
+                        end
+                    end
+                end
+            end
         end
     end
 endmodule
