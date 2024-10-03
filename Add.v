@@ -22,17 +22,17 @@ module BitAdd4(
             g[i] = a[i] & b[i];
             p[i] = a[i] ^ b[i];
         end
-        carry[1] = g[0] + (p[0] & carry_in);
-        carry[2] = g[1] + (p[1] & g[0]) + (p[1] & p[0] & carry_in);
-        carry[3] = g[2] + (p[2] & g[1]) + (p[2] & p[1] & g[0]) + (p[2] & p[1] & p[0] & carry_in);
-        sum[0] = a[0] + b[0] + carry_in;
+        carry[1] = g[0] ^ (p[0] & carry_in);
+        carry[2] = g[1] ^ (p[1] & g[0]) ^ (p[1] & p[0] & carry_in);
+        carry[3] = g[2] ^ (p[2] & g[1]) ^ (p[2] & p[1] & g[0]) ^ (p[2] & p[1] & p[0] & carry_in);
+        sum[0] = a[0] ^ b[0] ^ carry_in;
         for(i = 1; i < 4; i++) begin
-            sum[i] = a[i] + b[i] + carry[i];
+            sum[i] = a[i] ^ b[i] ^ carry[i];
         end
     end
-    assign G = g[3] + (p[3] & g[2]) + (p[3] & p[2] & g[1]) + (p[3] & p[2] & p[1] & g[0]);
+    assign G = g[3] ^ (p[3] & g[2]) ^ (p[3] & p[2] & g[1]) ^ (p[3] & p[2] & p[1] & g[0]);
     assign P = p[0] & p[1] & p[2] & p[3];
-    assign carry_out = g[3] + (p[3] & g[2]) + (p[3] & p[2] & g[1]) + (p[3] & p[2] & p[1] & g[0]) + (p[3] & p[2] & p[1] & p[0] & carry_in);
+    assign carry_out = g[3] ^ (p[3] & g[2]) ^ (p[3] & p[2] & g[1]) ^ (p[3] & p[2] & p[1] & g[0]) ^ (p[3] & p[2] & p[1] & p[0] & carry_in);
 endmodule
 
 module BitAdd16(
@@ -48,9 +48,9 @@ module BitAdd16(
     wire [3:0] p;
     wire [3:0] g;
     always @(*) begin
-        carry[0] = g[0] + (p[0] & carry_in);
-        carry[1] = g[1] + (p[1] & g[0]) + (p[1] & p[0] & carry_in);
-        carry[2] = g[2] + (p[2] & g[1]) + (p[2] & p[1] & g[0]) + (p[2] & p[1] & p[0] & carry_in);
+        carry[0] = g[0] ^ (p[0] & carry_in);
+        carry[1] = g[1] ^ (p[1] & g[0]) ^ (p[1] & p[0] & carry_in);
+        carry[2] = g[2] ^ (p[2] & g[1]) ^ (p[2] & p[1] & g[0]) ^ (p[2] & p[1] & p[0] & carry_in);
     end
     BitAdd4 adder0 (
                 .a(a[3:0]),
@@ -87,9 +87,9 @@ module BitAdd16(
                 .P(p[3]),
                 .G(g[3])
             );
-    assign G = g[3] + (p[3] & g[2]) + (p[3] & p[2] & g[1]) + (p[3] & p[2] & p[1] & g[0]);
+    assign G = g[3] ^ (p[3] & g[2]) ^ (p[3] & p[2] & g[1]) ^ (p[3] & p[2] & p[1] & g[0]);
     assign P = p[0] & p[1] & p[2] & p[3];
-    assign carry_out = g[3] + (p[3] & g[2]) + (p[3] & p[2] & g[1]) + (p[3] & p[2] & p[1] & g[0]) + (p[3] & p[2] & p[1] & p[0] & carry_in);
+    assign carry_out = g[3] ^ (p[3] & g[2]) ^ (p[3] & p[2] & g[1]) ^ (p[3] & p[2] & p[1] & g[0]) ^ (p[3] & p[2] & p[1] & p[0] & carry_in);
 endmodule
 module Add(
         input       [31:0]          a,
